@@ -1892,7 +1892,7 @@ const BottomSheetComponent = forwardRef<BottomSheet, BottomSheetProps>(
               detached={detached}
               style={_providedContainerStyle}
             >
-              <Animated.View style={containerStyle}>
+              <Animated.View style={containerStyle} accessible={Platform.OS === 'ios' ? false : true}>
                 <BottomSheetBackgroundContainer
                   key="BottomSheetBackgroundContainer"
                   animatedIndex={animatedIndex}
@@ -1903,7 +1903,7 @@ const BottomSheetComponent = forwardRef<BottomSheet, BottomSheetProps>(
                 <Animated.View
                   pointerEvents="box-none"
                   style={contentMaskContainerStyle}
-                  accessible={_providedAccessible ?? undefined}
+                  accessible={Platform.OS === 'ios' ? false : true}
                   accessibilityRole={_providedAccessibilityRole ?? undefined}
                   accessibilityLabel={_providedAccessibilityLabel ?? undefined}
                 >
