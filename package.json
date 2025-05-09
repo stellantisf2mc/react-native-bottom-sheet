@@ -79,5 +79,8 @@
     "source": "src",
     "output": "lib",
     "targets": ["commonjs", "module", "typescript"]
+  },
+  "engines": {
+    "node": ">=18"
   }
 }
