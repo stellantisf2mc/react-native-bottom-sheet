@@ -6,14 +6,14 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import type { ViewProps } from 'react-native';
+import { StyleSheet, type ViewProps } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
-  interpolate,
-  useAnimatedStyle,
-  useAnimatedReaction,
-  runOnJS,
   Extrapolation,
+  interpolate,
+  runOnJS,
+  useAnimatedReaction,
+  useAnimatedStyle,
 } from 'react-native-reanimated';
 import { useBottomSheet } from '../../hooks';
 import {
@@ -108,7 +108,12 @@ const BottomSheetBackdropComponent = ({
     [animatedIndex, appearsOnIndex, disappearsOnIndex, opacity]
   );
   const containerStyle = useMemo(
-    () => [styles.container, style, containerAnimatedStyle],
+    () => [
+      StyleSheet.absoluteFill,
+      styles.backdrop,
+      style,
+      containerAnimatedStyle,
+    ],
     [style, containerAnimatedStyle]
   );
   //#endregion
@@ -161,7 +166,5 @@ const BottomSheetBackdropComponent = ({
   );
 };
 
-const BottomSheetBackdrop = memo(BottomSheetBackdropComponent);
+export const BottomSheetBackdrop = memo(BottomSheetBackdropComponent);
 BottomSheetBackdrop.displayName = 'BottomSheetBackdrop';
-
-export default BottomSheetBackdrop;
