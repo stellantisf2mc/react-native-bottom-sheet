@@ -1,7 +1,7 @@
-import { State } from 'react-native-gesture-handler';
 import { useCallback } from 'react';
+import { State } from 'react-native-gesture-handler';
 import { scrollTo } from 'react-native-reanimated';
-import { ANIMATION_STATE, SCROLLABLE_STATE, SHEET_STATE } from '../constants';
+import { ANIMATION_STATUS, SCROLLABLE_STATUS, SHEET_STATE } from '../constants';
 import type {
   ScrollEventHandlerCallbackType,
   ScrollEventsHandlersHookType,
@@ -21,9 +21,9 @@ export const useScrollEventsHandlersDefault: ScrollEventsHandlersHookType = (
   const {
     animatedSheetState,
     animatedScrollableState,
+    animatedScrollableStatus,
     animatedAnimationState,
     animatedHandleGestureState,
-    animatedScrollableContentOffsetY: rootScrollableContentOffsetY,
   } = useBottomSheetInternal();
 
   //#region callbacks
@@ -51,11 +51,11 @@ export const useScrollEventsHandlersDefault: ScrollEventsHandlersHookType = (
           context.initialContentOffsetY = y;
         }
 
-        if (animatedScrollableState.value === SCROLLABLE_STATE.LOCKED) {
+        if (animatedScrollableStatus.value === SCROLLABLE_STATUS.LOCKED) {
           const lockPosition = context.shouldLockInitialPosition
             ? (context.initialContentOffsetY ?? 0)
             : 0;
-          // @ts-ignore
+          // @ts-expect-error
           scrollTo(scrollableRef, 0, lockPosition, false);
           scrollableContentOffsetY.value = lockPosition;
           return;
@@ -64,8 +64,9 @@ export const useScrollEventsHandlersDefault: ScrollEventsHandlersHookType = (
       [
         scrollableRef,
         scrollableContentOffsetY,
-        animatedScrollableState,
+        animatedScrollableStatus,
         animatedSheetState,
+        animatedHandleGestureState,
       ]
     );
   const handleOnBeginDrag: ScrollEventHandlerCallbackType<ScrollEventContextType> =
@@ -73,8 +74,11 @@ export const useScrollEventsHandlersDefault: ScrollEventsHandlersHookType = (
       ({ contentOffset: { y } }, context) => {
         'worklet';
         scrollableContentOffsetY.value = y;
-        rootScrollableContentOffsetY.value = y;
         context.initialContentOffsetY = y;
+        animatedScrollableState.set(state => ({
+          ...state,
+          contentOffsetY: y,
+        }));
 
         /**
          * if sheet position not extended or fill parent and the scrollable position
@@ -90,64 +94,66 @@ export const useScrollEventsHandlersDefault: ScrollEventsHandlersHookType = (
           context.shouldLockInitialPosition = false;
         }
       },
-      [
-        scrollableContentOffsetY,
-        animatedSheetState,
-        rootScrollableContentOffsetY,
-      ]
+      [scrollableContentOffsetY, animatedSheetState, animatedScrollableState]
     );
   const handleOnEndDrag: ScrollEventHandlerCallbackType<ScrollEventContextType> =
     useCallback(
       ({ contentOffset: { y } }, context) => {
         'worklet';
-        if (animatedScrollableState.value === SCROLLABLE_STATE.LOCKED) {
+        if (animatedScrollableStatus.value === SCROLLABLE_STATUS.LOCKED) {
           const lockPosition = context.shouldLockInitialPosition
             ? (context.initialContentOffsetY ?? 0)
             : 0;
-          // @ts-ignore
+          // @ts-expect-error
           scrollTo(scrollableRef, 0, lockPosition, false);
           scrollableContentOffsetY.value = lockPosition;
           return;
         }
 
-        if (animatedAnimationState.value !== ANIMATION_STATE.RUNNING) {
+        if (animatedAnimationState.get().status !== ANIMATION_STATUS.RUNNING) {
           scrollableContentOffsetY.value = y;
-          rootScrollableContentOffsetY.value = y;
+          animatedScrollableState.set(state => ({
+            ...state,
+            contentOffsetY: y,
+          }));
         }
       },
       [
         scrollableRef,
         scrollableContentOffsetY,
         animatedAnimationState,
+        animatedScrollableStatus,
         animatedScrollableState,
-        rootScrollableContentOffsetY,
       ]
     );
   const handleOnMomentumEnd: ScrollEventHandlerCallbackType<ScrollEventContextType> =
     useCallback(
       ({ contentOffset: { y } }, context) => {
         'worklet';
-        if (animatedScrollableState.value === SCROLLABLE_STATE.LOCKED) {
+        if (animatedScrollableStatus.value === SCROLLABLE_STATUS.LOCKED) {
           const lockPosition = context.shouldLockInitialPosition
             ? (context.initialContentOffsetY ?? 0)
             : 0;
-          // @ts-ignore
+          // @ts-expect-error
           scrollTo(scrollableRef, 0, lockPosition, false);
           scrollableContentOffsetY.value = 0;
           return;
         }
 
-        if (animatedAnimationState.value !== ANIMATION_STATE.RUNNING) {
+        if (animatedAnimationState.get().status !== ANIMATION_STATUS.RUNNING) {
           scrollableContentOffsetY.value = y;
-          rootScrollableContentOffsetY.value = y;
+          animatedScrollableState.set(state => ({
+            ...state,
+            contentOffsetY: y,
+          }));
         }
       },
       [
         scrollableContentOffsetY,
         scrollableRef,
         animatedAnimationState,
+        animatedScrollableStatus,
         animatedScrollableState,
-        rootScrollableContentOffsetY,
       ]
     );
   //#endregion

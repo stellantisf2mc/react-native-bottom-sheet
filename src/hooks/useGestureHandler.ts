@@ -1,3 +1,4 @@
+import { useCallback } from 'react';
 import {
   type GestureStateChangeEvent,
   type GestureUpdateEvent,
@@ -6,7 +7,6 @@ import {
   State,
 } from 'react-native-gesture-handler';
 import type { SharedValue } from 'react-native-reanimated';
-import { useCallback } from 'react';
 import { GESTURE_SOURCE } from '../constants';
 import type {
   GestureEventHandlerCallbackType,
